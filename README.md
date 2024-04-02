@@ -1,6 +1,6 @@
 # Dishonored 2 Trainer / 符文工房3修改器
 
-![hello](res/trainer.png)
+![trainer](res/trainer.jpg)
 
 ## 下载
 

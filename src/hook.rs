@@ -2,14 +2,18 @@ use std::ptr::null_mut;
 
 use crate::asm;
 
-pub(crate) static mut INSTANT_CHOKE_HOOK: ByteHook = ByteHook::new();
-pub(crate) static mut NEVER_FALL_HOOK: ByteHook = ByteHook::new();
+pub(crate) static mut HOOK_INSTANT_CHOKE: ByteHook = ByteHook::new();
+pub(crate) static mut HOOK_NEVER_FALL: ByteHook = ByteHook::new();
+pub(crate) static mut HOOK_BLINK_NO_HIT_STUN: ByteHook = ByteHook::new();
 
-pub(crate) static mut UNLIMITED_MANA_HOOK: AsmHook = unsafe { ::core::mem::zeroed() };
-pub(crate) static mut BEND_TIME_HOOK: AsmHook = unsafe { ::core::mem::zeroed() };
+pub(crate) static mut HOOK_BLINK_DISTANCE: AsmHook = unsafe { ::core::mem::zeroed() };
+pub(crate) static mut BLINK_NO_ANIMATION: AsmHook = unsafe { ::core::mem::zeroed() };
+pub(crate) static mut HOOK_BLINK_NO_CD: AsmHook = unsafe { ::core::mem::zeroed() };
+pub(crate) static mut HOOK_UNLIMITED_MANA: AsmHook = unsafe { ::core::mem::zeroed() };
+pub(crate) static mut HOOK_BEND_TIME: AsmHook = unsafe { ::core::mem::zeroed() };
 
 pub(crate) unsafe fn create_hook(mod_addr: *mut ::core::ffi::c_void, mod_data: &[u8]) {
-    INSTANT_CHOKE_HOOK
+    HOOK_INSTANT_CHOKE
         .set_target_addr(
             mod_addr
                 .byte_add(vcheat::pat_find("8B 53 24 85 D2 74 18", mod_data).unwrap())
@@ -18,22 +22,62 @@ pub(crate) unsafe fn create_hook(mod_addr: *mut ::core::ffi::c_void, mod_data: &
         .get_source(1)
         .set_patch(&[0x77]);
 
-    NEVER_FALL_HOOK
+    HOOK_BLINK_NO_HIT_STUN
+        .set_target_addr(
+            mod_addr.byte_add(vcheat::pat_find("48 8B 41 10 48 8B 48 28 48 8B 81 90 00 00 00 48 85 C0 74 0E 48 8B 40 70 48 85 C0", mod_data).unwrap()),
+        )
+        .get_source(4)
+        .set_patch(&[0x30, 0xC0, 0xC3, 0x90]);
+
+    HOOK_NEVER_FALL
         .set_target_addr(
             mod_addr.byte_add(vcheat::pat_find("89 46 24 F3 0F 10 45 80", mod_data).unwrap()),
         )
         .get_source(3)
         .set_patch(&[0x90, 0x90, 0x90]);
 
-    UNLIMITED_MANA_HOOK = AsmHook::new()
+    HOOK_UNLIMITED_MANA = AsmHook::new()
         .get_data(mod_addr, mod_data, "0F 2F D1 F3 0F 10 7B", 8)
         .gen_detour(asm::unlimited_mana as *mut ::core::ffi::c_void)
         .create_hook()
         .to_owned();
 
-    BEND_TIME_HOOK = AsmHook::new()
+    HOOK_BEND_TIME = AsmHook::new()
         .get_data(mod_addr, mod_data, "F3 0F 11 7D 67 C7", 5)
         .gen_detour(asm::bend_time as *mut ::core::ffi::c_void)
+        .create_hook()
+        .to_owned();
+
+    HOOK_BLINK_DISTANCE = AsmHook::new()
+        .get_data(
+            mod_addr,
+            mod_data,
+            "83 F8 FF 7E 13 48 8D 14 80 48 8B 43 40 48 8B 48 48",
+            5,
+        )
+        .gen_detour(asm::blink_distance as *mut ::core::ffi::c_void)
+        .create_hook()
+        .to_owned();
+
+    BLINK_NO_ANIMATION = AsmHook::new()
+        .get_data(
+            mod_addr,
+            mod_data,
+            "F3 44 0F 10 5A 70 4C 8D 4D DB 48 8D 55 67",
+            6,
+        )
+        .gen_detour(asm::blink_instant as *mut ::core::ffi::c_void)
+        .create_hook()
+        .to_owned();
+
+    HOOK_BLINK_NO_CD = AsmHook::new()
+        .get_data(
+            mod_addr,
+            mod_data,
+            "F3 0F 10 80 50 01 00 00 F3 0F 11 02 74 0C F3 0F 58 80 04 02 00 00",
+            8,
+        )
+        .gen_detour(asm::blink_no_cd as *mut ::core::ffi::c_void)
         .create_hook()
         .to_owned();
 }
@@ -139,7 +183,7 @@ impl AsmHook {
 
 #[derive(Clone)]
 pub(crate) struct ByteHook {
-    target_addr: *mut std::ffi::c_void,
+    pub(crate) target_addr: *mut std::ffi::c_void,
     source: Vec<u8>,
     patch: Vec<u8>,
     is_enable: bool,

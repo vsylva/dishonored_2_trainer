@@ -1,22 +1,41 @@
-use crate::hook::{BEND_TIME_HOOK, INSTANT_CHOKE_HOOK, NEVER_FALL_HOOK, UNLIMITED_MANA_HOOK};
+use crate::hook::{
+    BLINK_NO_ANIMATION, HOOK_BEND_TIME, HOOK_BLINK_DISTANCE, HOOK_BLINK_NO_CD,
+    HOOK_BLINK_NO_HIT_STUN, HOOK_INSTANT_CHOKE, HOOK_NEVER_FALL, HOOK_UNLIMITED_MANA,
+};
 
 pub static mut IS_SHOW_UI: bool = true;
 
 pub unsafe fn window(ui: &hudhook::imgui::Ui) {
-    if ui.checkbox("无限法力", UNLIMITED_MANA_HOOK.get_swtich_mut()) {
-        UNLIMITED_MANA_HOOK.swtich()
+    if ui.checkbox("无限法力", HOOK_UNLIMITED_MANA.get_swtich_mut()) {
+        HOOK_UNLIMITED_MANA.swtich()
     }
 
-    if ui.checkbox("无限暂停时间", BEND_TIME_HOOK.get_swtich_mut()) {
-        BEND_TIME_HOOK.swtich()
+    if ui.checkbox("无限暂停时间", HOOK_BEND_TIME.get_swtich_mut()) {
+        HOOK_BEND_TIME.swtich()
     }
 
-    if ui.checkbox("立即击晕", INSTANT_CHOKE_HOOK.get_swtich_mut()) {
-        INSTANT_CHOKE_HOOK.swtich()
+    if ui.checkbox("立即击晕", HOOK_INSTANT_CHOKE.get_swtich_mut()) {
+        HOOK_INSTANT_CHOKE.swtich()
     }
 
-    if ui.checkbox("永不坠落", NEVER_FALL_HOOK.get_swtich_mut()) {
-        NEVER_FALL_HOOK.swtich()
+    if ui.checkbox("永不坠落", HOOK_NEVER_FALL.get_swtich_mut()) {
+        HOOK_NEVER_FALL.swtich()
+    }
+
+    if ui.checkbox("闪现距离", HOOK_BLINK_DISTANCE.get_swtich_mut()) {
+        HOOK_BLINK_DISTANCE.swtich()
+    }
+
+    if ui.checkbox("闪现无CD", HOOK_BLINK_NO_CD.get_swtich_mut()) {
+        HOOK_BLINK_NO_CD.swtich()
+    }
+
+    if ui.checkbox("闪现无硬直", HOOK_BLINK_NO_HIT_STUN.get_swtich_mut()) {
+        HOOK_BLINK_NO_HIT_STUN.swtich()
+    }
+
+    if ui.checkbox("闪现无动画", BLINK_NO_ANIMATION.get_swtich_mut()) {
+        BLINK_NO_ANIMATION.swtich()
     }
 }
 
@@ -46,7 +65,7 @@ impl hudhook::ImguiRenderLoop for RenderLoop {
 
             (*hudhook::imgui::sys::igGetIO()).MouseDrawCursor = true;
 
-            ui.window(format!("耻辱2修改器\t[~]键打开/关闭菜单"))
+            ui.window(format!("耻辱2修改器\t[Insert]键打开/关闭菜单"))
                 .title_bar(true)
                 .size([500.0, 400.0], hudhook::imgui::Condition::FirstUseEver)
                 .resizable(true)
