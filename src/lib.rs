@@ -3,14 +3,12 @@ pub mod hook;
 pub mod ui;
 
 use minhook_raw as minhook;
-use vcheat::{internal, read_mem};
 
 #[link(name = "user32")]
 extern "system" {
     pub(crate) fn GetAsyncKeyState(vKey: i32) -> u16;
 }
 
-// 禁止编译器改名函数
 #[no_mangle]
 unsafe extern "system" fn DllMain(
     h_module: isize,
@@ -36,20 +34,23 @@ unsafe extern "system" fn DllMain(
                 ::std::thread::sleep(dur);
             }
 
+            let mi = vcheat::internal::get_mod_info("").unwrap();
+
+            let mut mod_data = Vec::<u8>::new();
+            mod_data.resize(mi.size as usize, 0);
+            ::std::ptr::copy(mi.addr.cast(), mod_data.as_mut_ptr(), mi.size as usize);
+
+            if let Err(_) = vcheat::pat_find("31 2E 37 37 2E 39 2E 30 00", &mod_data) {
+                vcheat::internal::free_dll_exit_thread(h_module, 0);
+            }
+
             if minhook::initialize().is_err() {
                 vcheat::internal::free_dll_exit_thread(h_module, 0);
             }
 
-            let mi = internal::get_mod_info("Dishonored2.exe").unwrap();
-
-            let mod_data = read_mem(
-                vcheat::internal::get_proc_handle(),
-                mi.addr,
-                mi.size as usize,
-            )
-            .unwrap();
-
             hook::create_hook(mi.addr, &mod_data);
+
+            drop(mod_data);
 
             if let Err(_) = ::hudhook::Hudhook::builder()
                 .with::<hudhook::hooks::dx11::ImguiDx11Hooks>(ui::RenderLoop)

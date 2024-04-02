@@ -8,7 +8,7 @@ name = "d3d11"
 crate-type = ["cdylib"]
 
 [dependencies]
-vcheat = "=0.6.3"
+vcheat = "=0.6.4"
 minhook_raw = "=0.3.0"
 hudhook = "=0.6.4"
 

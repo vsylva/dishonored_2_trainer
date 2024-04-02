@@ -6,36 +6,36 @@ use crate::hook::{
 pub static mut IS_SHOW_UI: bool = true;
 
 pub unsafe fn window(ui: &hudhook::imgui::Ui) {
-    if ui.checkbox("无限法力", HOOK_UNLIMITED_MANA.get_swtich_mut()) {
-        HOOK_UNLIMITED_MANA.swtich()
+    if ui.checkbox("无限法力", &mut HOOK_UNLIMITED_MANA.is_enabled) {
+        HOOK_UNLIMITED_MANA.switch()
     }
 
-    if ui.checkbox("无限暂停时间", HOOK_BEND_TIME.get_swtich_mut()) {
-        HOOK_BEND_TIME.swtich()
+    if ui.checkbox("无限暂停时间", &mut HOOK_BEND_TIME.is_enabled) {
+        HOOK_BEND_TIME.switch()
     }
 
-    if ui.checkbox("立即击晕", HOOK_INSTANT_CHOKE.get_swtich_mut()) {
-        HOOK_INSTANT_CHOKE.swtich()
+    if ui.checkbox("立即击晕", &mut HOOK_INSTANT_CHOKE.is_enabled) {
+        HOOK_INSTANT_CHOKE.switch()
     }
 
-    if ui.checkbox("永不坠落", HOOK_NEVER_FALL.get_swtich_mut()) {
-        HOOK_NEVER_FALL.swtich()
+    if ui.checkbox("永不坠落", &mut HOOK_NEVER_FALL.is_enabled) {
+        HOOK_NEVER_FALL.switch()
     }
 
-    if ui.checkbox("闪现距离", HOOK_BLINK_DISTANCE.get_swtich_mut()) {
-        HOOK_BLINK_DISTANCE.swtich()
+    if ui.checkbox("闪现距离", &mut HOOK_BLINK_DISTANCE.is_enabled) {
+        HOOK_BLINK_DISTANCE.switch()
     }
 
-    if ui.checkbox("闪现无CD", HOOK_BLINK_NO_CD.get_swtich_mut()) {
-        HOOK_BLINK_NO_CD.swtich()
+    if ui.checkbox("闪现无CD", &mut HOOK_BLINK_NO_CD.is_enabled) {
+        HOOK_BLINK_NO_CD.switch()
     }
 
-    if ui.checkbox("闪现无硬直", HOOK_BLINK_NO_HIT_STUN.get_swtich_mut()) {
-        HOOK_BLINK_NO_HIT_STUN.swtich()
+    if ui.checkbox("闪现无硬直", &mut HOOK_BLINK_NO_HIT_STUN.is_enabled) {
+        HOOK_BLINK_NO_HIT_STUN.switch()
     }
 
-    if ui.checkbox("闪现无动画", BLINK_NO_ANIMATION.get_swtich_mut()) {
-        BLINK_NO_ANIMATION.swtich()
+    if ui.checkbox("闪现无动画", &mut BLINK_NO_ANIMATION.is_enabled) {
+        BLINK_NO_ANIMATION.switch()
     }
 }
 
