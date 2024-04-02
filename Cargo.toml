@@ -1,0 +1,16 @@
+[package]
+name = "dishonored_2_trainer"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "d3d11"
+crate-type = ["cdylib"]
+
+[dependencies]
+vcheat = "=0.6.3"
+minhook_raw = "=0.3.0"
+hudhook = "=0.6.4"
+
+[build-dependencies]
+forward-dll-mini = "=0.1.16"
