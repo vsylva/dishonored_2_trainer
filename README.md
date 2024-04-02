@@ -1,4 +1,4 @@
-# Dishonored 2 Trainer / 符文工房3修改器
+# Dishonored 2 Trainer / 耻辱2修改器
 
 ![trainer](res/trainer.jpg)
 
