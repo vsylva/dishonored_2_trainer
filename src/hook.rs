@@ -11,16 +11,17 @@ pub(crate) static mut HOOK_UNLIMITED_MANA: AsmHook = AsmHook::new();
 pub(crate) static mut HOOK_BEND_TIME: AsmHook = AsmHook::new();
 
 pub(crate) unsafe fn create_hook(mod_addr: *mut ::core::ffi::c_void, mod_data: &[u8]) {
-    HOOK_INSTANT_CHOKE.create(mod_addr, mod_data, "8B 53 24 85 D2 74 18", "77");
+    HOOK_INSTANT_CHOKE.create(mod_addr, mod_data, "8B 53 24 85 D2 74 18", "77", -2);
 
     HOOK_BLINK_NO_HIT_STUN.create(
         mod_addr,
         mod_data,
         "48 8B 41 10 48 8B 48 28 48 8B 81 90 00 00 00 48 85 C0 74 0E 48 8B 40 70 48 85 C0",
         "30 C0 C3 90",
+        0,
     );
 
-    HOOK_NEVER_FALL.create(mod_addr, mod_data, "89 46 24 F3 0F 10 45 80", "90 90 90");
+    HOOK_NEVER_FALL.create(mod_addr, mod_data, "89 46 24 F3 0F 10 45 80", "90 90 90", 0);
 
     HOOK_UNLIMITED_MANA.create(
         mod_addr,
@@ -157,10 +158,13 @@ impl ByteHook {
         mod_data: &[u8],
         pat: &str,
         patch: S,
+        offset_count: isize,
     ) {
         let pat_offset = vcheat::pat_find(pat, mod_data).unwrap();
 
         self.target_addr = mod_addr.byte_add(pat_offset);
+
+        self.target_addr = self.target_addr.offset(offset_count);
 
         let size = patch.as_ref().split_whitespace().count();
 
