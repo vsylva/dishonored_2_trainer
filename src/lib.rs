@@ -2,8 +2,6 @@ pub mod asm;
 pub mod hook;
 pub mod ui;
 
-use minhook_raw as minhook;
-
 #[link(name = "user32")]
 extern "system" {
     pub(crate) fn GetAsyncKeyState(vKey: i32) -> u16;
@@ -18,10 +16,10 @@ unsafe extern "system" fn DllMain(
     if ul_reason_for_call == 1 {
         std::thread::spawn(move || {
             let now = ::std::time::Instant::now();
-            let dur = ::std::time::Duration::from_secs(1);
+            let dur = ::std::time::Duration::from_secs(3);
 
             loop {
-                if now.elapsed().as_secs() < 20 {
+                if now.elapsed().as_secs() < 60 {
                     if let Ok(mi) = vcheat::internal::get_mod_info("XAudio2_9.dll") {
                         if mi.handle != 0 {
                             break;
@@ -44,7 +42,7 @@ unsafe extern "system" fn DllMain(
                 vcheat::internal::free_dll_exit_thread(h_module, 0);
             }
 
-            if minhook::initialize().is_err() {
+            if minhook_raw::initialize().is_err() {
                 vcheat::internal::free_dll_exit_thread(h_module, 0);
             }
 
@@ -52,15 +50,13 @@ unsafe extern "system" fn DllMain(
 
             drop(mod_data);
 
-            if let Err(_) = ::hudhook_mini::Hudhook::builder()
-                .with::<hudhook_mini::hooks::dx11::ImguiDx11Hooks>(ui::RenderLoop)
-                .with_hmodule(hudhook_mini::windows::Win32::Foundation::HINSTANCE(
-                    h_module,
-                ))
+            if let Err(_) = ::hudhook::Hudhook::builder()
+                .with::<hudhook::hooks::dx11::ImguiDx11Hooks>(ui::RenderLoop)
+                .with_hmodule(hudhook::windows::Win32::Foundation::HINSTANCE(h_module))
                 .build()
                 .apply()
             {
-                ::hudhook_mini::eject();
+                ::hudhook::eject();
             }
         });
     } else if ul_reason_for_call == 0 {

@@ -5,7 +5,7 @@ use crate::hook::{
 
 pub static mut IS_SHOW_UI: bool = true;
 
-pub unsafe fn window(ui: &hudhook_mini::imgui::Ui) {
+pub unsafe fn on_frame(ui: &hudhook::imgui::Ui) {
     if ui.checkbox("无限法力", &mut HOOK_UNLIMITED_MANA.is_enabled) {
         HOOK_UNLIMITED_MANA.switch()
     }
@@ -41,53 +41,64 @@ pub unsafe fn window(ui: &hudhook_mini::imgui::Ui) {
 
 pub struct RenderLoop;
 
-impl hudhook_mini::ImguiRenderLoop for RenderLoop {
+impl hudhook::ImguiRenderLoop for RenderLoop {
     fn initialize<'a>(
         &'a mut self,
-        _ctx: &mut hudhook_mini::imgui::Context,
-        _render_context: &'a mut dyn hudhook_mini::RenderContext,
+        _ctx: &mut hudhook::imgui::Context,
+        _render_context: &'a mut dyn hudhook::RenderContext,
     ) {
         _ctx.set_ini_filename(None);
 
-        set_font(_ctx, 20.0);
+        set_font(_ctx, 25.0);
+
+        _ctx.style_mut().use_light_colors();
     }
 
-    fn render(&mut self, ui: &mut hudhook_mini::imgui::Ui) {
+    fn before_render<'a>(
+        &'a mut self,
+        _ctx: &mut hudhook::imgui::Context,
+        _render_context: &'a mut dyn hudhook::RenderContext,
+    ) {
         unsafe {
             if is_key_down_once(0x2D) {
                 IS_SHOW_UI = !IS_SHOW_UI;
             }
 
             if !IS_SHOW_UI {
-                (*hudhook_mini::imgui::sys::igGetIO()).MouseDrawCursor = false;
+                _ctx.io_mut().mouse_draw_cursor = false;
                 return;
             }
 
-            (*hudhook_mini::imgui::sys::igGetIO()).MouseDrawCursor = true;
+            _ctx.io_mut().mouse_draw_cursor = true;
+        }
+    }
 
-            ui.window(format!("耻辱2修改器\t[Insert]键打开/关闭菜单"))
+    fn render(&mut self, ui: &mut hudhook::imgui::Ui) {
+        unsafe {
+            if !IS_SHOW_UI {
+                return;
+            }
+
+            ui.window(format!("[Insert]键 打开/关闭菜单"))
                 .title_bar(true)
-                .size([500.0, 400.0], hudhook_mini::imgui::Condition::FirstUseEver)
-                .resizable(true)
-                .collapsible(true)
-                .movable(true)
-                .build(|| window(ui));
+                .size([600.0, 450.0], hudhook::imgui::Condition::FirstUseEver)
+                .build(|| on_frame(ui));
         }
     }
 }
 
-pub(crate) fn set_font(ctx: &mut hudhook_mini::imgui::Context, font_size: f32) {
-    let tf_data = hudhook_mini::imgui::FontSource::TtfData {
+pub(crate) fn set_font(ctx: &mut hudhook::imgui::Context, font_size: f32) {
+    let tf_data = hudhook::imgui::FontSource::TtfData {
         data: include_bytes!("../res/FZHTJW.TTF"),
         size_pixels: font_size,
-        config: Some(hudhook_mini::imgui::FontConfig {
+        config: Some(hudhook::imgui::FontConfig {
             size_pixels: font_size,
             pixel_snap_h: true,
-            glyph_ranges: hudhook_mini::imgui::FontGlyphRanges::from_slice(&[
+            glyph_ranges: hudhook::imgui::FontGlyphRanges::from_slice(&[
                 0x0020, 0x00FF, 0x2000, 0x206F, 0x3000, 0x30FF, 0x31F0, 0x31FF, 0xFF00, 0xFFEF,
                 0xFFFD, 0xFFFD, 0x4E00, 0x9FAF, 0,
             ]),
-            ..hudhook_mini::imgui::FontConfig::default()
+            ..hudhook::imgui::FontConfig::default()
         }),
     };
 

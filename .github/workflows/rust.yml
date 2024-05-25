@@ -35,5 +35,5 @@ jobs:
       with:
         body_path: CHANGELOG.txt
         prerelease: false
-        files: target/release/d3d11.dll
+        files: target/release/dinput8.dll
         fail_on_unmatched_files: true
