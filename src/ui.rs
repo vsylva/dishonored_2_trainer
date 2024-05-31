@@ -79,7 +79,7 @@ impl hudhook::ImguiRenderLoop for RenderLoop {
                 return;
             }
 
-            ui.window(format!("[Insert]键 打开/关闭菜单"))
+            ui.window(format!("[Insert]键"))
                 .title_bar(true)
                 .size([600.0, 450.0], hudhook::imgui::Condition::FirstUseEver)
                 .build(|| on_frame(ui));
